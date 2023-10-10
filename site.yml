@@ -1,0 +1,55 @@
+---
+- name: Install Clickhouse
+  hosts: clickhouse
+  handlers:  
+    - name: Fix ownership for folder  clickhouse
+      become: true
+      command: chown -R clickhouse:clickhouse /var/lib/clickhouse
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+  tasks: 
+    - block:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
+            dest: "{{ clickhouse_dest }}/{{ item }}-{{ clickhouse_version }}.rpm" 
+          with_items: "{{ clickhouse_packages }}"
+      rescue:
+        - name: Get rescue clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "{{ clickhouse_dest }}/clickhouse-common-static-{{ clickhouse_version }}.rpm"
+    - name: Install required packages
+      become: true
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - dirmngr
+    - name: Add apt key from keyserver by id
+      become: true
+      ansible.builtin.apt_key:
+        keyserver: hkp://keyserver.ubuntu.com:80 
+        id: 8919F6BD2B48D754
+    - name: Add official repo for clickhouse server and clickhouse client
+      become: true
+      command: "echo \"deb https://packages.clickhouse.com/deb stable main\">>/etc/apt/sources.list.d/clickhouse.list"
+    - name: Install clickhouse packages
+      become: true
+      ansible.builtin.apt:  
+        name:
+        - clickhouse-server
+        - clickhouse-client 
+      notify:
+        - Fix ownership for folder  clickhouse 
+        - Start clickhouse service 
+    - name: Flush handlers
+      meta: flush_handlers
+    - name: Create database
+      ansible.builtin.command: "clickhouse-client -q 'create database if not exists logs;'"
+      register: create_db
+      failed_when: create_db.rc != 0 and create_db.rc !=82
+      changed_when: create_db.rc == 0

@@ -1,0 +1,3 @@
+vector_hostname: "127.0.0.1"
+vector_port: 8686
+vector_dest: "/packages"

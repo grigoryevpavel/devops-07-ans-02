@@ -1,0 +1,24 @@
+- name: Install Vector
+  hosts: vector 
+  tasks: 
+  - name: Get vector installation script
+    ansible.builtin.get_url:
+      url: "https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh"
+      dest: "{{ vector_dest }}/bash.deb.sh"
+  - name: Install vector  repository
+    become: true
+    ansible.builtin.command: "bash {{ vector_dest }}/bash.deb.sh"
+  - name: Install vector
+    become: true
+    ansible.builtin.apt: 
+      name: vector
+      update_cache: true
+  - name: Add configuration
+    become: true
+    ansible.builtin.template:
+      src: vector/vector.j2
+      dest: /etc/vector/vector.yaml
+      owner: root
+      group: root
+      mode: '0600'
+
