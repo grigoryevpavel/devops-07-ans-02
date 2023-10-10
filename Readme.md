@@ -2,6 +2,7 @@
 
 1. Плейбук для clickhouse
 2. Плейбук для vector
+3. Теги
 
 ### Плейбук clickhouse
 
@@ -36,4 +37,7 @@
 - Устанавливает **vector** из репозитория командой **apt install vector**, предварительно выполнив **apt update**
 - На основе **[jinja2 шаблона](vector/vector.j2)** генерируется рабочую конфигурацию vector 
 
+### 3. Теги 
+
+08-ansible-02-playbook 
 
