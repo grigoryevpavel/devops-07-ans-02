@@ -1,7 +1,10 @@
 ---
-clickhouse_version: "22.3.3.44"
-clickhouse_packages:
-  - clickhouse-client
+clickhouse_prerequisites: 
+  - apt-transport-https
+  - ca-certificates
+  - dirmngr
+clickhouse_packages: 
   - clickhouse-server
-  - clickhouse-common-static
-clickhouse_dest: "/packages"
+  - clickhouse-client
+clickhouse_query: create database if not exists logs;
+

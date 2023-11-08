@@ -5,14 +5,17 @@
     ansible.builtin.get_url:
       url: "https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh"
       dest: "{{ vector_dest }}/bash.deb.sh"
+    tags: prerequisites
   - name: Install vector  repository
     become: true
     ansible.builtin.command: "bash {{ vector_dest }}/bash.deb.sh"
+    tags: prerequisites
   - name: Install vector
     become: true
     ansible.builtin.apt: 
       name: vector
       update_cache: true
+    tags: vector
   - name: Add configuration
     become: true
     ansible.builtin.template:
@@ -20,5 +23,6 @@
       dest: /etc/vector/vector.yaml
       owner: root
       group: root
-      mode: '0600'
+      mode: '0600' 
+    tags: [vector,vector_conf]
 
